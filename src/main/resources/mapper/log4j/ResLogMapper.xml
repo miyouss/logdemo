@@ -36,6 +36,10 @@
             <if test="eTime != null">
                 and CREATETIME <![CDATA[ <= ]]> #{eTime}
             </if>
+            <if test="logMsg != null">
+                and MSG like concat('%',#{logMsg},'%')
+            </if>
+
         </where>
         order by CREATETIME desc
     </select>
@@ -55,6 +59,9 @@
             </if>
             <if test="eTime != null">
                 and to_timestamp(to_char(create_time,'yyyy-MM-dd HH24:mi:ss'),'yyyy-MM-dd HH24:mi:ss') <![CDATA[ <= ]]> to_timestamp(#{eTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="logMsg != null">
+                and msg like concat('%',#{logMsg},'%')
             </if>
         </where>
         order by create_time desc
@@ -76,6 +83,9 @@
             <if test="eTime != null">
                 and CREATETIME <![CDATA[ <= ]]> #{eTime}
             </if>
+            <if test="logMsg != null">
+                and MSG like concat('%',#{logMsg},'%')
+            </if>
         </where>
     </select>
     <select id="selectAllCount" parameterType="map" resultType="java.lang.Long" databaseId="postgresql">
@@ -94,6 +104,9 @@
             </if>
             <if test="eTime != null">
                 and to_timestamp(to_char(create_time,'yyyy-MM-dd HH24:mi:ss'),'yyyy-MM-dd HH24:mi:ss') <![CDATA[ <= ]]> to_timestamp(#{eTime},'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="logMsg != null">
+                and msg like concat('%',#{logMsg},'%')
             </if>
         </where>
     </select>

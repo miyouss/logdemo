@@ -21,4 +21,6 @@ public interface ResWarnMapper {
     void insert(ResWarn resWarn);
 
     List<ResWarn> selectLastWarn();
+
+    void update(ResWarn resWarn);
 }

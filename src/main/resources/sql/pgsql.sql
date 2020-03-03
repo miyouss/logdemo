@@ -12,7 +12,7 @@
  Target Server Version : 100004
  File Encoding         : 65001
 
- Date: 26/02/2020 10:40:30
+ Date: 03/03/2020 11:17:28
 */
 
 
@@ -268,7 +268,9 @@ CREATE TABLE "public"."reswarn" (
   "handle_msg" text COLLATE "pg_catalog"."default",
   "handle_time" timestamp(6),
   "start_time" timestamp(6),
-  "warn_status" int2 DEFAULT 0
+  "warn_status" int2 DEFAULT 0,
+  "error_count" int8 DEFAULT 0,
+  "warn_count" int8 DEFAULT 0
 )
 ;
 
@@ -280,10 +282,10 @@ OWNED BY "public"."error_log_info"."id";
 SELECT setval('"public"."error_log_info_id_seq"', 48, true);
 ALTER SEQUENCE "public"."reslog_LOGID_seq"
 OWNED BY "public"."reslog"."log_id";
-SELECT setval('"public"."reslog_LOGID_seq"', 396, true);
+SELECT setval('"public"."reslog_LOGID_seq"', 402, true);
 ALTER SEQUENCE "public"."reswarn_WARNID_seq"
 OWNED BY "public"."reswarn"."warn_id";
-SELECT setval('"public"."reswarn_WARNID_seq"', 11, true);
+SELECT setval('"public"."reswarn_WARNID_seq"', 3176, true);
 
 -- ----------------------------
 -- Primary Key structure for table error_log_info

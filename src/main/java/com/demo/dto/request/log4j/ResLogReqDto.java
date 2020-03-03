@@ -16,6 +16,8 @@ public class ResLogReqDto extends BaseReqDto {
     private String sTime;
     //结束时间
     private String eTime;
+    //
+    private String logMsg;
 
     public String getLogModule() {
         return logModule;
@@ -49,6 +51,14 @@ public class ResLogReqDto extends BaseReqDto {
         this.eTime = eTime;
     }
 
+    public String getLogMsg() {
+        return logMsg;
+    }
+
+    public void setLogMsg(String logMsg) {
+        this.logMsg = logMsg;
+    }
+
     public Map getMap(){
         Map<String,Object> paramMap = new HashMap<>();
         if (StringUtils.isNotBlank(this.logModule) &&
@@ -66,6 +76,10 @@ public class ResLogReqDto extends BaseReqDto {
         if (StringUtils.isNotBlank(this.eTime) &&
                 StringUtils.isNotBlank(this.eTime.trim())){
             paramMap.put("eTime",this.eTime.trim());
+        }
+        if (StringUtils.isNotBlank(this.logMsg) &&
+                StringUtils.isNotBlank(this.logMsg.trim())){
+            paramMap.put("logMsg",this.logMsg.trim());
         }
         paramMap.put("page",this.getPage());
         paramMap.put("limit",this.getLimit());

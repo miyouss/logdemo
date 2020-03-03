@@ -13,13 +13,16 @@
         <result column="handle_msg" property="handleMsg" javaType="String" jdbcType="VARCHAR"/>
         <result column="handle_time" property="handleTime" javaType="Date" jdbcType="TIMESTAMP"/>
         <result column="start_time" property="startTime" javaType="Date" jdbcType="TIMESTAMP"/>
+        <result column="error_count" property="errorCount" javaType="Long" jdbcType="BIGINT"/>
+        <result column="warn_count" property="warnCount" javaType="Long" jdbcType="BIGINT"/>
     </resultMap>
     <sql id="baseSql" >
         WARNID as warn_id,WARNMODULE as warn_module,WARNMSG as warn_msg,WARNSTATUS as warn_status,WARNTIME as warn_time,
-        HANDLEUSER as handle_user,HANDLEMSG as handle_msg,HANDLETIME as handle_time,STARTTIME as start_time
+        HANDLEUSER as handle_user,HANDLEMSG as handle_msg,HANDLETIME as handle_time,STARTTIME as start_time,
+        ERRORCOUNT as error_count,WARNCOUNT as warn_count
     </sql>
     <sql id="basePostgreSql" >
-        warn_id,warn_module,warn_msg,warn_status,warn_time,handle_user,handle_msg,handle_time,start_time
+        warn_id,warn_module,warn_msg,warn_status,warn_time,handle_user,handle_msg,handle_time,start_time,error_count,warn_count
     </sql>
     <select id="selectAll" parameterType="map" resultMap="warnResultMap" databaseId="mysql">
         select
@@ -159,13 +162,13 @@
     </delete>
 
     <insert id="insert" parameterType="com.demo.pojo.log4j.ResWarn" databaseId="mysql">
-        insert into reswarn  (WARNMODULE,WARNMSG,WARNSTATUS,WARNTIME,HANDLEUSER,HANDLETIME,STARTTIME)
-        VALUES (#{warnModule},#{warnMsg},#{warnStatus},now(),#{handleUser},#{handleTime},#{startTime})
+        insert into reswarn  (WARNMODULE,WARNMSG,WARNSTATUS,WARNTIME,HANDLEUSER,HANDLETIME,STARTTIME,ERRORCOUNT,WARNCOUNT)
+        VALUES (#{warnModule},#{warnMsg},#{warnStatus},now(),#{handleUser},#{handleTime},#{startTime},#{errorCount},#{warnCount})
     </insert>
 
     <insert id="insert" parameterType="com.demo.pojo.log4j.ResWarn" databaseId="postgresql">
-        insert into public.reswarn  (warn_module,warn_msg,warn_status,warn_time,handle_user,handle_time,start_time)
-        VALUES (#{warnModule},#{warnMsg},#{warnStatus},#{warnTime},#{handleUser},#{handleTime},#{startTime})
+        insert into public.reswarn  (warn_module,warn_msg,warn_status,warn_time,handle_user,handle_time,start_time,error_count,warn_count)
+        VALUES (#{warnModule},#{warnMsg},#{warnStatus},#{warnTime},#{handleUser},#{handleTime},#{startTime},#{errorCount},#{warnCount})
     </insert>
 
     <select id="selectLastWarn" resultMap="warnResultMap" databaseId="mysql">
@@ -179,6 +182,44 @@
         <include refid="basePostgreSql"/>
         from public.reswarn where warn_status = 0 order by warn_time desc limit 1
     </select>
+    <update id="update" parameterType="com.demo.pojo.log4j.ResWarn" databaseId="mysql">
+        update reswarn
+        <set>
+            <if test="warnMsg != null">
+                WARNMSG = #{warnMsg},
+            </if>
+            <if test="warnTime != null">
+                WARNTIME = #{warnTime},
+            </if>
+            <if test="errorCount != null">
+                ERRORCOUNT = #{errorCount},
+            </if>
+            <if test="warnCount != null">
+                WARNCOUNT = #{warnCount},
+            </if>
+
+        </set>
+        where WARNID = #{warnId}
+    </update>
+    <update id="update" parameterType="com.demo.pojo.log4j.ResWarn" databaseId="postgresql">
+        update public.reswarn
+        <set>
+            <if test="warnMsg != null">
+                warn_msg = #{warnMsg},
+            </if>
+            <if test="warnTime != null">
+                warn_time = #{warnTime},
+            </if>
+            <if test="errorCount != null">
+                error_count = #{errorCount},
+            </if>
+            <if test="warnCount != null">
+                warn_count = #{warnCount},
+            </if>
+
+        </set>
+        where warn_id = #{warnId}
+    </update>
 
 </mapper>
 

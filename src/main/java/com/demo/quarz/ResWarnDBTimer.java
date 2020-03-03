@@ -135,21 +135,48 @@ public class ResWarnDBTimer {
 
         paramMap.put("logLevel", "ERROR");
         Long errorDBCount = resLogMapper.selectAllCount(paramMap);
-        if (isWarnOrError == ErrorOrWarnConstant.WARN){
-            if (warnDBCount != null  && warnDBCount.longValue() >= warnCount.longValue() ) {
+
+        if (warnDBCount != null  && errorDBCount != null &&
+                (warnDBCount.longValue() >= warnCount.longValue())|| errorDBCount.longValue() >= errorCount.longValue() ) {
+            //查询该时间段内是否已经存在告警信息，如果已经存在 合并
+            paramMap.remove("logLevel");
+            paramMap.remove("moduleName");
+            paramMap.put("warnModule",moduleName);
+            paramMap.put("warnStatus",0);//未处理
+            ResWarnMapper resWarnDao = (ResWarnMapper)SpringContextHolder.getBean("resWarnMapper");
+            List<ResWarn> resWarns = resWarnDao.selectAll(paramMap);
+            ResWarn resWarn ;
+            if (resWarns!=null && resWarns.size()>0){
+                resWarn = resWarns.get(0);
+                //合并
+                mergeWarnLog(moduleName, msg, eTime, warnDBCount, errorDBCount, resWarnDao, resWarn);
+            }else{
+                //新增
                 insertWarnLog(moduleName, warnCount, msg, sTime, eTime, warnDBCount, errorDBCount);
             }
-        }else if (isWarnOrError == ErrorOrWarnConstant.ERROR){
-            if (errorDBCount != null  && errorDBCount.longValue() >= errorCount.longValue() ) {
-                insertWarnLog(moduleName, warnCount, msg, sTime, eTime, warnDBCount, errorDBCount);
-            }
+
         }
+    }
+
+    private void mergeWarnLog(String moduleName, String msg, String eTime, Long warnDBCount, Long errorDBCount, ResWarnMapper resWarnDao, ResWarn resWarn) {
+        resWarn.setWarnTime(DateUtil.parseDate(eTime));
+        String warnMsgStr = msg.trim().replace("%moudlename%", moduleName)
+                .replace("%level%", "错误(警告)")
+                .replace("%stime%", DateUtil.parseDateToStr(resWarn.getStartTime(),DateUtil.DATE_TIME_FORMAT_YYYY_MM_DD_HH_MI_SS))
+                .replace("%etime%", eTime)
+                .replace("%errorcount%", String.valueOf(resWarn.getErrorCount()+errorDBCount))
+                .replace("%warncount%", String.valueOf(resWarn.getWarnCount()+warnDBCount));
+        resWarn.setWarnCount(resWarn.getErrorCount()+warnDBCount);
+        resWarn.setErrorCount(resWarn.getErrorCount()+errorDBCount);
+        resWarn.setWarnMsg(warnMsgStr);
+        resWarnDao.update(resWarn);
+        logger.info(LogBuilderUtil.getBuilder("ConfigScheduleWarnLog", "定时查询告警信息", "更新告警信息成功").build());
     }
 
     private void insertWarnLog(String moduleName, Long warnCount, String msg, String sTime, String eTime, Long warnDBCount, Long errorDBCount) {
         //添加报警 %moudlename%模块%level%日志过多，在%stime%-%etime%内,(错误日志%errorcount%次，警告日志%warncount%次)
         String warnMsgStr = msg.trim().replace("%moudlename%", moduleName)
-                .replace("%level%", (warnDBCount.longValue() >= warnCount.longValue()) ? "警告" : "错误")
+                .replace("%level%", "错误(警告)")
                 .replace("%stime%", sTime)
                 .replace("%etime%", eTime)
                 .replace("%errorcount%", String.valueOf(errorDBCount))
@@ -160,7 +187,8 @@ public class ResWarnDBTimer {
         resWarn.setStartTime(DateUtil.parseDate(sTime));
         resWarn.setWarnMsg(warnMsgStr);
         resWarn.setWarnTime(DateUtil.parseDate(eTime));
-        ResWarnMapper resWarnDao = (ResWarnMapper)SpringContextHolder.getBean("resWarnMapper");
+        resWarn.setErrorCount(errorDBCount);
+        resWarn.setWarnCount(warnDBCount);
         resWarnDao.insert(resWarn);
         logger.info(LogBuilderUtil.getBuilder("ConfigScheduleWarnLog", "定时查询告警信息", "新增告警信息成功").build());
     }

@@ -20,6 +20,10 @@ public class ResWarn {
     private Date handleTime;
     //扫描起始时间
     private Date startTime;
+    //错误的数量
+    private Long errorCount;
+    //警告的数量
+    private Long warnCount;
 
     public Long getWarnId() {
         return warnId;
@@ -93,6 +97,22 @@ public class ResWarn {
         this.handleTime = handleTime;
     }
 
+    public Long getErrorCount() {
+        return errorCount;
+    }
+
+    public void setErrorCount(Long errorCount) {
+        this.errorCount = errorCount;
+    }
+
+    public Long getWarnCount() {
+        return warnCount;
+    }
+
+    public void setWarnCount(Long warnCount) {
+        this.warnCount = warnCount;
+    }
+
     @Override
     public String toString() {
         return "ResWarn{" +
@@ -105,6 +125,8 @@ public class ResWarn {
                 ", handleMsg='" + handleMsg + '\'' +
                 ", handleTime=" + handleTime +
                 ", startTime=" + startTime +
+                ", errorCount=" + errorCount +
+                ", warnCount=" + warnCount +
                 '}';
     }
 }
